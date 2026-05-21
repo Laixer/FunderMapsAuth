@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 import { login } from '@/services/auth'
 
-const route = useRoute()
 const router = useRouter()
 
 const email = ref('')
@@ -12,21 +11,27 @@ const password = ref('')
 const submitting = ref(false)
 const error = ref<string | null>(null)
 
+const API = import.meta.env.VITE_FUNDERMAPS_URL
+
 async function onSubmit() {
   if (submitting.value) return
   submitting.value = true
   error.value = null
   try {
     await login(email.value, password.value)
-    // Phase B will resume an OIDC /authorize request here. For now: if a
-    // `redirect` query param is present, honour it; otherwise show the
-    // signed-in landing page.
-    const redirect = route.query.redirect
-    if (typeof redirect === 'string' && redirect) {
-      window.location.assign(redirect)
-    } else {
-      router.push({ name: 'home' })
+    // OIDC resume: the provider redirects unauthenticated users here with the
+    // full authorization request (incl. its `sig`) in the query string. After
+    // login the session cookie is set, so we replay that exact query string
+    // back to /oauth2/authorize — the provider verifies the signature and
+    // (for trusted, skip_consent clients) issues the code and returns the user
+    // to the requesting app. If there's no client_id we just came here to log
+    // in, so show the landing page.
+    const search = window.location.search
+    if (new URLSearchParams(search).has('client_id')) {
+      window.location.assign(`${API}/api/auth/oauth2/authorize${search}`)
+      return
     }
+    router.push({ name: 'home' })
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Inloggen mislukt'
   } finally {
