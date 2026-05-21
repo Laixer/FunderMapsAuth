@@ -40,7 +40,7 @@ async function onSubmit() {
 </script>
 
 <template>
-  <div class="w-full max-w-sm space-y-6 rounded-xl bg-white p-8 shadow-card">
+  <div class="w-full max-w-[30rem] space-y-6 rounded-xl bg-white p-8 shadow-card">
     <header class="space-y-1">
       <h1 class="text-2xl font-extrabold text-blue-900">Nieuw wachtwoord</h1>
       <p class="text-sm text-grey-700">Kies een nieuw wachtwoord voor je account.</p>
