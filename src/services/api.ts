@@ -31,6 +31,11 @@ export async function call<T = unknown>({
   const res = await fetch(`${BASE}/api/auth${path}`, {
     method,
     headers,
+    // Send/accept the Better Auth session cookie. Sign-in sets it on the API
+    // origin; the subsequent /oauth2/authorize navigation relies on it (a
+    // navigation can't carry a bearer header). Requires credentialed CORS on
+    // the API (Access-Control-Allow-Credentials + a specific origin).
+    credentials: 'include',
     body: body ? JSON.stringify(body) : undefined,
   })
 
