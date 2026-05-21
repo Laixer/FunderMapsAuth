@@ -1,0 +1,31 @@
+{
+  "name": "fundermapsauth",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "build-only": "vite build",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --build"
+  },
+  "dependencies": {
+    "vue": "^3.5.34",
+    "vue-router": "^5.0.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/node": "^24.0.3",
+    "@vitejs/plugin-vue": "^6.0.7",
+    "@vue/tsconfig": "^0.7.0",
+    "npm-run-all2": "^8.0.4",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.14",
+    "vue-tsc": "^3.3.1"
+  }
+}
