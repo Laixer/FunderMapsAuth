@@ -41,42 +41,58 @@ async function onSubmit() {
 </script>
 
 <template>
-  <form class="flex flex-col gap-4" @submit.prevent="onSubmit">
-    <h2 class="text-lg font-medium">Inloggen</h2>
+  <form class="w-full max-w-sm space-y-6 rounded-xl bg-white p-8 shadow-card" @submit.prevent="onSubmit">
+    <header class="space-y-1">
+      <h1 class="text-2xl font-extrabold text-blue-900">Inloggen</h1>
+      <p class="text-sm text-grey-700">Welkom terug bij FunderMaps.</p>
+    </header>
 
-    <label class="flex flex-col gap-1">
-      <span class="text-sm">E-mailadres</span>
-      <input
-        v-model="email"
-        type="email"
-        autocomplete="username"
-        required
-        class="rounded-sm border border-gray-400 px-3 py-2"
-      />
-    </label>
+    <p
+      v-if="error"
+      class="rounded-lg border-l-4 border-red-500 bg-yellow-100 px-4 py-3 text-sm text-red-500"
+      role="alert"
+    >
+      {{ error }}
+    </p>
 
-    <label class="flex flex-col gap-1">
-      <span class="text-sm">Wachtwoord</span>
-      <input
-        v-model="password"
-        type="password"
-        autocomplete="current-password"
-        required
-        class="rounded-sm border border-gray-400 px-3 py-2"
-      />
-    </label>
+    <div class="space-y-4">
+      <label class="block">
+        <span class="mb-1 block text-sm font-medium text-grey-800">E-mailadres</span>
+        <input
+          v-model="email"
+          type="email"
+          autocomplete="username"
+          required
+          placeholder="naam@bedrijf.nl"
+          class="w-full rounded-lg border border-grey-400 px-3 py-2.5 text-sm transition-colors placeholder:text-grey-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/30 focus:outline-none"
+        />
+      </label>
 
-    <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+      <label class="block">
+        <span class="mb-1 block text-sm font-medium text-grey-800">Wachtwoord</span>
+        <input
+          v-model="password"
+          type="password"
+          autocomplete="current-password"
+          required
+          placeholder="••••••••"
+          class="w-full rounded-lg border border-grey-400 px-3 py-2.5 text-sm transition-colors placeholder:text-grey-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/30 focus:outline-none"
+        />
+      </label>
+    </div>
 
     <button
       type="submit"
       :disabled="submitting"
-      class="rounded-sm bg-gray-800 px-3 py-2 text-white disabled:opacity-50"
+      class="flex w-full items-center justify-center rounded-lg bg-green-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:ring-2 focus:ring-green-500/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
     >
       {{ submitting ? 'Bezig…' : 'Inloggen' }}
     </button>
 
-    <RouterLink :to="{ name: 'forgot-password' }" class="text-sm text-blue-700 underline">
+    <RouterLink
+      :to="{ name: 'forgot-password' }"
+      class="block text-center text-sm text-green-700 underline-offset-2 hover:underline"
+    >
       Wachtwoord vergeten?
     </RouterLink>
   </form>

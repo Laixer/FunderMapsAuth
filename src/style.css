@@ -1,4 +1,90 @@
 @import "tailwindcss";
 
-/* Styling is intentionally minimal for now — the FunderMaps layout/theme
-   (the shared @theme palette + design system) lands in a later pass. */
+/* FunderMaps design system — shared with WebFront/ClientApp. Palette + Greycliff
+   font + card shadows; default Tailwind type sizes are kept. */
+@theme {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-inherit: inherit;
+  --color-black: #000000;
+  --color-white: #ffffff;
+
+  --color-blue-100: #e7f6fd;
+  --color-blue-200: #d1edfb;
+  --color-blue-500: #17a4ea;
+  --color-blue-900: #191e3c;
+
+  --color-green-100: #e9faf3;
+  --color-green-200: #afecd4;
+  --color-green-500: #28cc8b;
+  --color-green-700: #149d67;
+  --color-green-800: #065f46;
+
+  --color-grey-100: #f6f7f8;
+  --color-grey-200: #e8eaf1;
+  --color-grey-400: #ced0da;
+  --color-grey-700: #7f8fa4;
+  --color-grey-800: #3d5372;
+
+  --color-red-50: #fef2f2;
+  --color-red-500: #ed1c24;
+
+  --color-yellow-100: #fffaf0;
+
+  --font-sans: 'Greycliff CF', Arial, sans-serif;
+
+  --shadow-hover: 0 10px 20px 0px rgb(0 0 0 / 0.1), 0 4px 4px 0px rgb(0 0 0 / 0.1);
+  --shadow-card: 0 10px 20px 0px rgb(0 0 0 / 0.1), 0 4px 4px 0px rgb(0 0 0 / 0.1);
+  --shadow-float: 0px 5px 15px 0px rgb(44 45 60 / 0.2);
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Greycliff CF';
+  font-style: normal;
+  font-weight: normal;
+  src:
+    url('@assets/fonts/greycliffcf-regular.woff2') format('woff2'),
+    url('@assets/fonts/greycliffcf-regular.woff') format('woff');
+}
+@font-face {
+  font-display: swap;
+  font-family: 'Greycliff CF';
+  font-style: italic;
+  font-weight: normal;
+  src:
+    url('@assets/fonts/greycliffcf-regularoblique.woff2') format('woff2'),
+    url('@assets/fonts/greycliffcf-regularoblique.woff') format('woff');
+}
+@font-face {
+  font-display: swap;
+  font-family: 'Greycliff CF';
+  font-style: normal;
+  font-weight: 800;
+  src:
+    url('@assets/fonts/greycliffcf-extrabold.woff2') format('woff2'),
+    url('@assets/fonts/greycliffcf-extrabold.woff') format('woff');
+}
+@font-face {
+  font-display: swap;
+  font-family: 'Greycliff CF';
+  font-style: italic;
+  font-weight: 800;
+  src:
+    url('@assets/fonts/greycliffcf-extraboldoblique.woff2') format('woff2'),
+    url('@assets/fonts/greycliffcf-extraboldoblique.woff') format('woff');
+}
+
+html {
+  font-family: var(--font-sans);
+  color: var(--color-grey-800);
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Full-bleed brand background for the auth screens (same image as WebFront). */
+.page-no-session {
+  background-image: url('@assets/images/background.jpg');
+  background-size: cover;
+  background-position: center;
+}
