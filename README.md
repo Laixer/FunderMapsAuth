@@ -28,6 +28,18 @@ Copy `.env.example` to `.env`:
 
 - `VITE_FUNDERMAPS_URL` — base URL of the FunderMaps TS API (no trailing slash).
 
+## Deployment
+
+Served as a static site from **`auth.fundermaps.com`** (a separate app from the
+API). The subdomain was previously an alias of the FunderMaps API; the API now
+lives only on `api.fundermaps.com`, freeing `auth.` for this app.
+
+Required deploy config:
+- This app's `VITE_FUNDERMAPS_URL` = `https://api.fundermaps.com`.
+- The API's `TRUSTED_ORIGINS` must include `https://auth.fundermaps.com` (so
+  this app can call `/api/auth` and use `redirectTo`/`callbackURL`, e.g. the
+  password-reset link).
+
 ## Stack
 
 Vue 3 + Vite 8 + vue-router 5 + TypeScript 6 + Tailwind 4 (`@tailwindcss/vite`),
