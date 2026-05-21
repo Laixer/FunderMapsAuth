@@ -26,16 +26,22 @@ async function onSignOut() {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
-    <p v-if="loading" class="text-sm">Laden…</p>
+  <div class="w-full max-w-sm space-y-6 rounded-xl bg-white p-8 shadow-card">
+    <p v-if="loading" class="text-sm text-grey-700">Laden…</p>
     <template v-else>
-      <h2 class="text-lg font-medium">Ingelogd</h2>
-      <p class="text-sm">
-        {{ user?.email }}<span v-if="user?.role"> — {{ user.role }}</span>
-      </p>
+      <header class="space-y-1">
+        <h1 class="text-2xl font-extrabold text-blue-900">Ingelogd</h1>
+        <p class="text-sm text-grey-700">Je bent aangemeld bij FunderMaps.</p>
+      </header>
+
+      <div class="rounded-lg bg-grey-100 px-4 py-3 text-sm">
+        <p class="font-medium text-grey-800">{{ user?.email }}</p>
+        <p v-if="user?.role" class="text-grey-700">{{ user.role }}</p>
+      </div>
+
       <button
         type="button"
-        class="rounded-sm bg-gray-800 px-3 py-2 text-white"
+        class="flex w-full items-center justify-center rounded-lg border border-grey-400 px-4 py-2.5 text-sm font-semibold text-grey-800 transition-colors hover:border-red-500 hover:bg-red-50 hover:text-red-500 focus:ring-2 focus:ring-green-500/40 focus:outline-none"
         @click="onSignOut"
       >
         Uitloggen
