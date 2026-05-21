@@ -26,7 +26,7 @@ async function onSignOut() {
 </script>
 
 <template>
-  <div class="w-full max-w-[30rem] space-y-6 rounded-xl bg-white p-8 shadow-card">
+  <div class="w-[calc(100vw-3rem)] sm:w-[30rem] space-y-6 rounded-xl bg-white p-8 shadow-card">
     <p v-if="loading" class="text-sm text-grey-700">Laden…</p>
     <template v-else>
       <header class="space-y-1">

@@ -41,7 +41,7 @@ async function onSubmit() {
 </script>
 
 <template>
-  <form class="w-full max-w-[30rem] space-y-6 rounded-xl bg-white p-8 shadow-card" @submit.prevent="onSubmit">
+  <form class="w-[calc(100vw-3rem)] sm:w-[30rem] space-y-6 rounded-xl bg-white p-8 shadow-card" @submit.prevent="onSubmit">
     <header class="space-y-1">
       <h1 class="text-2xl font-extrabold text-blue-900">Inloggen</h1>
       <p class="text-sm text-grey-700">Welkom terug bij FunderMaps.</p>
