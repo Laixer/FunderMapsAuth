@@ -24,7 +24,7 @@ async function onSubmit() {
 </script>
 
 <template>
-  <div class="w-full max-w-[30rem] space-y-6 rounded-xl bg-white p-8 shadow-card">
+  <div class="w-[calc(100vw-3rem)] sm:w-[30rem] space-y-6 rounded-xl bg-white p-8 shadow-card">
     <header class="space-y-1">
       <h1 class="text-2xl font-extrabold text-blue-900">Wachtwoord vergeten</h1>
       <p class="text-sm text-grey-700">We sturen je een link om een nieuw wachtwoord in te stellen.</p>
