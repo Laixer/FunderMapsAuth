@@ -12,9 +12,6 @@ trusted, there is **no consent screen**.
 It talks to the FunderMaps TS API's Better Auth endpoints
 (`${VITE_FUNDERMAPS_URL}/api/auth/*`); it has no backend of its own.
 
-> Status: scaffold + working (unstyled) forms. The FunderMaps layout/theme and
-> the OIDC `/authorize` resume glue land in later passes.
-
 ## Commands
 
 - `pnpm dev` — dev server
