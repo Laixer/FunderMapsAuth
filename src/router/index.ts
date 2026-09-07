@@ -5,7 +5,7 @@ import ForgotPassword from '@/views/ForgotPassword.vue'
 import ResetPassword from '@/views/ResetPassword.vue'
 import Home from '@/views/Home.vue'
 
-import { getToken } from '@/services/auth'
+import { getSession } from '@/services/auth'
 
 const routes: RouteRecordRaw[] = [
   { name: 'login', path: '/login', component: Login },
@@ -20,10 +20,10 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to) => {
-  // The only protected page is the post-login landing screen.
-  if (to.name === 'home' && !getToken()) {
-    return { name: 'login' }
+router.beforeEach(async (to) => {
+  // The only protected page is the account screen; the session is the cookie.
+  if (to.name === 'home' && !(await getSession())) {
+    return { name: 'login', query: to.query }
   }
 })
 

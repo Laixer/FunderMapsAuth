@@ -15,26 +15,22 @@ interface CallOptions {
   path: string
   method?: 'GET' | 'POST'
   body?: Record<string, unknown>
-  token?: string | null
 }
 
 export async function call<T = unknown>({
   path,
   method = 'POST',
   body,
-  token,
 }: CallOptions): Promise<T> {
   const headers: Record<string, string> = {}
   if (body) headers['Content-Type'] = 'application/json'
-  if (token) headers.Authorization = `Bearer ${token}`
 
   const res = await fetch(`${BASE}/api/auth${path}`, {
     method,
     headers,
-    // Send/accept the Better Auth session cookie. Sign-in sets it on the API
-    // origin; the subsequent /oauth2/authorize navigation relies on it (a
-    // navigation can't carry a bearer header). Requires credentialed CORS on
-    // the API (Access-Control-Allow-Credentials + a specific origin).
+    // The Better Auth session cookie is the session. Sign-in sets it on the
+    // API origin; every FunderMaps app sends it back on credentialed fetches
+    // (same-site). Requires credentialed CORS on the API.
     credentials: 'include',
     body: body ? JSON.stringify(body) : undefined,
   })
