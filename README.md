@@ -3,11 +3,12 @@
 The dedicated authentication app for FunderMaps — `auth.fundermaps.com`.
 
 A small Vue 3 + Vite + TypeScript SPA that owns the generic auth surface for
-the whole fleet: **login, forgot-password, reset/set-password, sign-out**. It
-is the OIDC authorization server's UI: every first-party FunderMaps frontend
-(WebFront, Report, ClientApp, ManagementFront) is a trusted OIDC client and
-redirects unauthenticated users here. Because all clients are first-party and
-trusted, there is **no consent screen**.
+the whole fleet: **login (password or passkey), forgot-password,
+reset/set-password, sign-out, and the account page**. The apps (maps, studio,
+admin) send unauthenticated users here with `?redirect=<url>`; signing in sets
+the Better Auth session cookie, which every `*.fundermaps.com` app then sends to
+the API. Only FunderMaps origins are accepted as a redirect target. There is no
+OAuth/OIDC flow any more (removed 2026-10).
 
 It talks to the FunderMaps TS API's Better Auth endpoints
 (`${VITE_FUNDERMAPS_URL}/api/auth/*`); it has no backend of its own.
