@@ -12,21 +12,13 @@ const submitting = ref(false)
 const passkeyBusy = ref(false)
 const error = ref<string | null>(null)
 
-const API = import.meta.env.VITE_FUNDERMAPS_URL
-
 /**
  * Where to go once the cookie is set.
- *  - `client_id` in the query: an OIDC authorization request parked here by
- *    the provider; replay it (kept until the last app has moved to cookies).
  *  - `redirect`: the app that sent the user here; FunderMaps origins only.
  *  - otherwise the account page.
  */
 function continueAfterLogin() {
   const params = new URLSearchParams(window.location.search)
-  if (params.has('client_id')) {
-    window.location.assign(`${API}/api/auth/oauth2/authorize${window.location.search}`)
-    return
-  }
   const target = safeRedirect(params.get('redirect'))
   if (target) {
     window.location.assign(target)
