@@ -1,7 +1,8 @@
 /**
  * Minimal fetch wrapper over the FunderMaps TS API's Better Auth endpoints.
  * Calls `${VITE_FUNDERMAPS_URL}/api/auth/<path>`. Throws an Error carrying the
- * server's message on a non-OK response.
+ * message to show on a non-OK response: Dutch for the answers we know, the
+ * server's own message otherwise.
  */
 
 const BASE = import.meta.env.VITE_FUNDERMAPS_URL
@@ -16,6 +17,21 @@ interface CallOptions {
   method?: 'GET' | 'POST'
   body?: Record<string, unknown>
 }
+
+/**
+ * Better Auth answers in English; the pages around it are Dutch. These are the
+ * answers a visitor can run into on the login and reset forms, by error code.
+ * Anything not listed keeps the server's own message.
+ */
+const MESSAGES = new Map<string, string>([
+  ['INVALID_EMAIL_OR_PASSWORD', 'Onjuist e-mailadres of wachtwoord'],
+  ['INVALID_EMAIL', 'Vul een geldig e-mailadres in'],
+  ['INVALID_TOKEN', 'Deze reset-link is ongeldig of verlopen. Vraag een nieuwe aan.'],
+  ['PASSWORD_TOO_SHORT', 'Het wachtwoord is te kort. Gebruik minimaal 8 tekens.'],
+  ['PASSWORD_TOO_LONG', 'Het wachtwoord is te lang'],
+])
+
+const TOO_MANY_REQUESTS = 'Te veel pogingen. Wacht even en probeer het opnieuw.'
 
 export async function call<T = unknown>({
   path,
@@ -46,10 +62,13 @@ export async function call<T = unknown>({
   }
 
   if (!res.ok) {
+    const answer = payload as { message?: string; code?: string } | null
     const message =
-      (payload as { message?: string } | null)?.message ||
+      (typeof answer?.code === 'string' && MESSAGES.get(answer.code)) ||
+      (res.status === 429 && TOO_MANY_REQUESTS) ||
+      answer?.message ||
       (typeof payload === 'string' && payload) ||
-      `Request failed (${res.status})`
+      `Verzoek mislukt (${res.status})`
     throw new Error(message)
   }
 
