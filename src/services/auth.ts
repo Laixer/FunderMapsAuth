@@ -50,11 +50,17 @@ export async function getSession(): Promise<SessionResponse | null> {
   }
 }
 
-export async function signOut(): Promise<void> {
+/**
+ * Ends the session at the API, which clears the cookie. Answers whether that
+ * worked: when it did not, the visitor is still logged in and must not be
+ * shown a login form as if they were out.
+ */
+export async function signOut(): Promise<boolean> {
   try {
     await call({ path: '/sign-out' })
+    return true
   } catch {
-    // best-effort; the cookie is cleared by the server on success
+    return false
   }
 }
 
@@ -101,18 +107,30 @@ export interface Passkey {
   createdAt?: string | Date | null
 }
 
+/**
+ * The API wants a (new) login before it does this: the session ended somewhere
+ * else while the page stayed open (401), or it is older than the API accepts
+ * for adding a passkey (SESSION_NOT_FRESH). The way out is the same for both.
+ */
+export class SessionExpiredError extends Error {}
+
+function passkeyFailure(error: { status?: number; code?: string; message?: string }, fallback: string): Error {
+  if (error.status === 401 || error.code === 'SESSION_NOT_FRESH') return new SessionExpiredError(fallback)
+  return new Error(error.message ?? fallback)
+}
+
 export async function listPasskeys(): Promise<Passkey[]> {
   const res = await authClient.passkey.listUserPasskeys()
-  if (res.error) throw new Error(res.error.message ?? 'Passkeys ophalen mislukt')
+  if (res.error) throw passkeyFailure(res.error, 'Passkeys ophalen mislukt')
   return (res.data ?? []) as Passkey[]
 }
 
 export async function addPasskey(name: string): Promise<void> {
   const res = await authClient.passkey.addPasskey({ name })
-  if (res?.error) throw new Error(res.error.message ?? 'Passkey toevoegen mislukt')
+  if (res?.error) throw passkeyFailure(res.error, 'Passkey toevoegen mislukt')
 }
 
 export async function deletePasskey(id: string): Promise<void> {
   const res = await authClient.passkey.deletePasskey({ id })
-  if (res.error) throw new Error(res.error.message ?? 'Passkey verwijderen mislukt')
+  if (res.error) throw passkeyFailure(res.error, 'Passkey verwijderen mislukt')
 }
