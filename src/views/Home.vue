@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import {
@@ -7,6 +7,7 @@ import {
   deletePasskey,
   getSession,
   listPasskeys,
+  SessionExpiredError,
   signOut,
   type Passkey,
   type SessionUser,
@@ -17,21 +18,39 @@ const router = useRouter()
 const user = ref<SessionUser | null>(null)
 const loading = ref(true)
 const passkeys = ref<Passkey[]>([])
+// False until the list has been read: "none yet" is only true when we know.
+const passkeysLoaded = ref(false)
 const passkeyError = ref<string | null>(null)
+const signOutFailed = ref(false)
 const busy = ref(false)
 const passkeysSupported = typeof window !== 'undefined' && typeof window.PublicKeyCredential !== 'undefined'
 
 const apps = [
   { name: 'Kaart', href: 'https://maps.fundermaps.com', blurb: 'Funderingsrisico per pand' },
-  { name: 'Data Studio', href: 'https://studio.fundermaps.com', blurb: 'Invoer en beoordeling' },
-  { name: 'Beheer', href: 'https://admin.fundermaps.com', blurb: 'Gebruikers en organisaties' },
+  { name: 'Studio', href: 'https://studio.fundermaps.com', blurb: 'Invoer en beoordeling' },
+  // The admin portal lets only administrators in.
+  { name: 'Beheer', href: 'https://admin.fundermaps.com', blurb: 'Gebruikers en organisaties', administrator: true },
 ]
+const visibleApps = computed(() => apps.filter((app) => !app.administrator || user.value?.role === 'administrator'))
+
+/**
+ * When the API wants a new login, that is said on the login page, not as an
+ * error here. The errors that do stay here are our own Dutch ones: the API's
+ * are English.
+ */
+function toLoginIfExpired(e: unknown): boolean {
+  if (!(e instanceof SessionExpiredError)) return false
+  router.push({ name: 'login', query: { expired: '1' } })
+  return true
+}
 
 async function refreshPasskeys() {
   try {
     passkeys.value = await listPasskeys()
+    passkeysLoaded.value = true
   } catch (e) {
-    passkeyError.value = e instanceof Error ? e.message : 'Passkeys ophalen mislukt'
+    passkeysLoaded.value = false
+    if (!toLoginIfExpired(e)) passkeyError.value = 'Passkeys ophalen mislukt'
   }
 }
 
@@ -65,9 +84,10 @@ async function onAddPasskey() {
     await addPasskey(name.trim() || defaultPasskeyName())
     await refreshPasskeys()
   } catch (e) {
+    if (toLoginIfExpired(e)) return
     const msg = e instanceof Error ? e.message : ''
     // Dismissing the browser prompt is not an error.
-    if (!/abort|cancel|NotAllowed/i.test(msg)) passkeyError.value = msg || 'Passkey toevoegen mislukt'
+    if (!/abort|cancel|NotAllowed/i.test(msg)) passkeyError.value = 'Passkey toevoegen mislukt'
   } finally {
     busy.value = false
   }
@@ -82,7 +102,7 @@ async function onDeletePasskey(pk: Passkey) {
     await deletePasskey(pk.id)
     await refreshPasskeys()
   } catch (e) {
-    passkeyError.value = e instanceof Error ? e.message : 'Passkey verwijderen mislukt'
+    if (!toLoginIfExpired(e)) passkeyError.value = 'Passkey verwijderen mislukt'
   } finally {
     busy.value = false
   }
@@ -94,7 +114,12 @@ function formatDate(d: Passkey['createdAt']): string {
 }
 
 async function onSignOut() {
-  await signOut()
+  signOutFailed.value = false
+  if (!(await signOut())) {
+    // Still logged in: the login form would say otherwise.
+    signOutFailed.value = true
+    return
+  }
   router.push({ name: 'login' })
 }
 </script>
@@ -105,13 +130,13 @@ async function onSignOut() {
     <template v-else>
       <header class="space-y-1">
         <h1 class="text-2xl font-extrabold text-blue-900">Ingelogd</h1>
-        <p class="text-sm text-grey-700">Je bent aangemeld bij FunderMaps als <span class="font-medium text-grey-800">{{ user?.email }}</span>.</p>
+        <p class="text-sm text-grey-700">Je bent ingelogd bij FunderMaps als <span class="font-medium text-grey-800">{{ user?.email }}</span>.</p>
       </header>
 
       <section class="space-y-2">
         <h2 class="text-xs font-semibold uppercase tracking-wide text-grey-700">Ga verder naar</h2>
         <ul class="divide-y divide-grey-200 rounded-lg border border-grey-200">
-          <li v-for="app in apps" :key="app.href">
+          <li v-for="app in visibleApps" :key="app.href">
             <a :href="app.href" class="flex items-center justify-between px-4 py-3 text-sm transition-colors hover:bg-grey-100">
               <span>
                 <span class="block font-medium text-grey-800">{{ app.name }}</span>
@@ -160,8 +185,12 @@ async function onSignOut() {
             </button>
           </li>
         </ul>
-        <p v-else class="text-sm text-grey-700">Nog geen passkeys.</p>
+        <p v-else-if="passkeysLoaded" class="text-sm text-grey-700">Nog geen passkeys.</p>
       </section>
+
+      <p v-if="signOutFailed" class="rounded-lg border-l-4 border-red-500 bg-yellow-100 px-4 py-3 text-sm text-red-500" role="alert">
+        Uitloggen is niet gelukt. Probeer het opnieuw.
+      </p>
 
       <button
         type="button"

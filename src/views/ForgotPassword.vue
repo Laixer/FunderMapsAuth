@@ -69,7 +69,7 @@ async function onSubmit() {
     </form>
 
     <RouterLink
-      :to="{ name: 'login' }"
+      :to="{ name: 'login', query: { redirect: $route.query.redirect } }"
       class="block text-center text-sm text-green-700 underline-offset-2 hover:underline"
     >
       Terug naar inloggen

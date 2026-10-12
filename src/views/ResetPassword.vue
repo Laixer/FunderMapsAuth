@@ -43,14 +43,16 @@ async function onSubmit() {
   <div class="w-[calc(100vw-3rem)] sm:w-[30rem] space-y-6 rounded-xl bg-white p-8 shadow-card">
     <header class="space-y-1">
       <h1 class="text-2xl font-extrabold text-blue-900">Nieuw wachtwoord</h1>
-      <p class="text-sm text-grey-700">Kies een nieuw wachtwoord voor je account.</p>
+      <p v-if="token" class="text-sm text-grey-700">Kies een nieuw wachtwoord voor je account.</p>
     </header>
 
     <p
       v-if="!token"
       class="rounded-lg border-l-4 border-red-500 bg-yellow-100 px-4 py-3 text-sm text-red-500"
+      role="alert"
     >
-      Ongeldige of ontbrekende reset-link. Vraag een nieuwe aan.
+      Ongeldige of ontbrekende reset-link.
+      <RouterLink :to="{ name: 'forgot-password', query: { redirect: route.query.redirect } }" class="font-semibold underline underline-offset-2">Vraag een nieuwe aan</RouterLink>.
     </p>
 
     <p
@@ -107,7 +109,7 @@ async function onSubmit() {
     </form>
 
     <RouterLink
-      :to="{ name: 'login' }"
+      :to="{ name: 'login', query: { redirect: route.query.redirect } }"
       class="block text-center text-sm text-green-700 underline-offset-2 hover:underline"
     >
       Terug naar inloggen

@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import { login, loginWithPasskey, safeRedirect } from '@/services/auth'
 
 const router = useRouter()
+const route = useRoute()
 
 const email = ref('')
 const password = ref('')
 const submitting = ref(false)
 const passkeyBusy = ref(false)
-const error = ref<string | null>(null)
+// `expired`: the account page sent the visitor here because the API wanted a new login.
+const error = ref<string | null>(route.query.expired === '1' ? 'Je sessie is verlopen. Log opnieuw in.' : null)
 
 /**
  * Where to go once the cookie is set.
@@ -137,7 +139,7 @@ onMounted(async () => {
     </button>
 
     <RouterLink
-      :to="{ name: 'forgot-password' }"
+      :to="{ name: 'forgot-password', query: { redirect: route.query.redirect } }"
       class="block text-center text-sm text-green-700 underline-offset-2 hover:underline"
     >
       Wachtwoord vergeten?
