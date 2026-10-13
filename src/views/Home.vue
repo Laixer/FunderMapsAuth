@@ -50,7 +50,7 @@ async function refreshPasskeys() {
     passkeysLoaded.value = true
   } catch (e) {
     passkeysLoaded.value = false
-    if (!toLoginIfExpired(e)) passkeyError.value = 'Passkeys ophalen mislukt'
+    if (!toLoginIfExpired(e)) passkeyError.value = 'Passkeys ophalen mislukt.'
   }
 }
 
@@ -87,7 +87,7 @@ async function onAddPasskey() {
     if (toLoginIfExpired(e)) return
     const msg = e instanceof Error ? e.message : ''
     // Dismissing the browser prompt is not an error.
-    if (!/abort|cancel|NotAllowed/i.test(msg)) passkeyError.value = 'Passkey toevoegen mislukt'
+    if (!/abort|cancel|NotAllowed/i.test(msg)) passkeyError.value = 'Passkey toevoegen mislukt.'
   } finally {
     busy.value = false
   }
@@ -102,7 +102,7 @@ async function onDeletePasskey(pk: Passkey) {
     await deletePasskey(pk.id)
     await refreshPasskeys()
   } catch (e) {
-    if (!toLoginIfExpired(e)) passkeyError.value = 'Passkey verwijderen mislukt'
+    if (!toLoginIfExpired(e)) passkeyError.value = 'Passkey verwijderen mislukt.'
   } finally {
     busy.value = false
   }
@@ -137,7 +137,7 @@ async function onSignOut() {
         <h2 class="text-xs font-semibold uppercase tracking-wide text-grey-700">Ga verder naar</h2>
         <ul class="divide-y divide-grey-200 rounded-lg border border-grey-200">
           <li v-for="app in visibleApps" :key="app.href">
-            <a :href="app.href" class="flex items-center justify-between px-4 py-3 text-sm transition-colors hover:bg-grey-100">
+            <a :href="app.href" class="flex items-center justify-between px-4 py-3 text-sm transition-colors hover:bg-grey-100 focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none">
               <span>
                 <span class="block font-medium text-grey-800">{{ app.name }}</span>
                 <span class="block text-grey-700">{{ app.blurb }}</span>
@@ -154,7 +154,7 @@ async function onSignOut() {
           <button
             type="button"
             :disabled="busy"
-            class="text-sm font-semibold text-green-700 underline-offset-2 hover:underline disabled:opacity-50"
+            class="rounded text-sm font-semibold text-green-700 underline-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none disabled:opacity-50"
             @click="onAddPasskey"
           >
             + Passkey toevoegen
@@ -178,7 +178,7 @@ async function onSignOut() {
             <button
               type="button"
               :disabled="busy"
-              class="text-sm text-grey-700 underline-offset-2 hover:text-red-500 hover:underline disabled:opacity-50"
+              class="rounded text-sm text-grey-700 underline-offset-2 hover:text-red-500 hover:underline focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none disabled:opacity-50"
               @click="onDeletePasskey(pk)"
             >
               Verwijderen

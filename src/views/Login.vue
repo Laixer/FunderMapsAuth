@@ -37,7 +37,7 @@ async function onSubmit() {
     await login(email.value, password.value)
     continueAfterLogin()
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Inloggen mislukt'
+    error.value = e instanceof Error ? e.message : 'Inloggen mislukt.'
   } finally {
     submitting.value = false
   }
@@ -50,7 +50,7 @@ async function onPasskey() {
   try {
     if (await loginWithPasskey()) continueAfterLogin()
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Inloggen met passkey mislukt'
+    error.value = e instanceof Error ? e.message : 'Inloggen met passkey mislukt.'
   } finally {
     passkeyBusy.value = false
   }
@@ -140,7 +140,7 @@ onMounted(async () => {
 
     <RouterLink
       :to="{ name: 'forgot-password', query: { redirect: route.query.redirect } }"
-      class="block text-center text-sm text-green-700 underline-offset-2 hover:underline"
+      class="mx-auto block w-fit rounded text-center text-sm text-green-700 underline-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none"
     >
       Wachtwoord vergeten?
     </RouterLink>
