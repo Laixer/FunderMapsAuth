@@ -6,7 +6,7 @@
  * in this app. After a sign-in the caller is sent back to the app it came from
  * (`?redirect=`), which then sees the cookie on its own API calls.
  */
-import { call } from './api'
+import { call, failureMessage, NO_CONNECTION } from './api'
 import { authClient } from './authClient'
 
 export interface SessionUser {
@@ -31,12 +31,16 @@ export async function login(email: string, password: string): Promise<void> {
  * and resolves when the user picks it. Without it the browser prompts at once.
  */
 export async function loginWithPasskey(opts: { autoFill?: boolean } = {}): Promise<boolean> {
-  const res = await authClient.signIn.passkey(opts)
+  // The client hands every answer back as `error`; it only throws when the
+  // request for the passkey options got no answer at all.
+  const res = await authClient.signIn.passkey(opts).catch(() => {
+    throw new Error(NO_CONNECTION)
+  })
   if (res?.error) {
     // The user dismissed the prompt, or autofill was cancelled by a
     // password submit; neither is an error worth showing.
     if (res.error.status === 0 || /abort|cancel|NotAllowed/i.test(res.error.message ?? '')) return false
-    throw new Error(res.error.message ?? 'Inloggen met passkey mislukt')
+    throw new Error(failureMessage(res.error.status, 'code' in res.error ? res.error.code : undefined))
   }
   return !!res?.data
 }

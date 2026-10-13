@@ -16,7 +16,7 @@ async function onSubmit() {
     await requestPasswordReset(email.value)
     sent.value = true
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Versturen mislukt'
+    error.value = e instanceof Error ? e.message : 'Versturen mislukt.'
   } finally {
     submitting.value = false
   }
@@ -34,7 +34,7 @@ async function onSubmit() {
       v-if="sent"
       class="rounded-lg border-l-4 border-green-500 bg-green-100 px-4 py-3 text-sm text-green-800"
     >
-      Als er een account bestaat voor dit e-mailadres, is er een reset-link verstuurd. Controleer je
+      Als er een account bestaat voor dit e-mailadres, is er een resetlink verstuurd. Controleer je
       inbox.
     </p>
 
@@ -64,13 +64,13 @@ async function onSubmit() {
         :disabled="submitting"
         class="flex w-full items-center justify-center rounded-lg bg-green-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:ring-2 focus:ring-green-500/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {{ submitting ? 'Bezig…' : 'Verstuur reset-link' }}
+        {{ submitting ? 'Bezig…' : 'Verstuur resetlink' }}
       </button>
     </form>
 
     <RouterLink
       :to="{ name: 'login', query: { redirect: $route.query.redirect } }"
-      class="block text-center text-sm text-green-700 underline-offset-2 hover:underline"
+      class="mx-auto block w-fit rounded text-center text-sm text-green-700 underline-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none"
     >
       Terug naar inloggen
     </RouterLink>

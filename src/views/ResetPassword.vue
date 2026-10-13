@@ -23,7 +23,7 @@ async function onSubmit() {
   error.value = null
 
   if (password.value !== confirm.value) {
-    error.value = 'Wachtwoorden komen niet overeen'
+    error.value = 'Wachtwoorden komen niet overeen.'
     return
   }
 
@@ -32,7 +32,7 @@ async function onSubmit() {
     await resetPassword(token.value, password.value)
     done.value = true
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Resetten mislukt'
+    error.value = e instanceof Error ? e.message : 'Resetten mislukt.'
   } finally {
     submitting.value = false
   }
@@ -51,8 +51,8 @@ async function onSubmit() {
       class="rounded-lg border-l-4 border-red-500 bg-yellow-100 px-4 py-3 text-sm text-red-500"
       role="alert"
     >
-      Ongeldige of ontbrekende reset-link.
-      <RouterLink :to="{ name: 'forgot-password', query: { redirect: route.query.redirect } }" class="font-semibold underline underline-offset-2">Vraag een nieuwe aan</RouterLink>.
+      Ongeldige of ontbrekende resetlink.
+      <RouterLink :to="{ name: 'forgot-password', query: { redirect: route.query.redirect } }" class="rounded font-semibold underline underline-offset-2 focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none">Vraag een nieuwe aan</RouterLink>.
     </p>
 
     <p
@@ -110,7 +110,7 @@ async function onSubmit() {
 
     <RouterLink
       :to="{ name: 'login', query: { redirect: route.query.redirect } }"
-      class="block text-center text-sm text-green-700 underline-offset-2 hover:underline"
+      class="mx-auto block w-fit rounded text-center text-sm text-green-700 underline-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none"
     >
       Terug naar inloggen
     </RouterLink>
