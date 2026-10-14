@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { login, loginWithPasskey, safeRedirect } from '@/services/auth'
+import { holdFocus } from '@/utils/focus'
 
 const router = useRouter()
 const route = useRoute()
@@ -39,6 +40,7 @@ async function continueAfterLogin() {
 
 async function onSubmit() {
   if (submitting.value) return
+  const giveFocusBack = holdFocus()
   submitting.value = true
   // The red box stays while the button says "Bezig…": removing it would make
   // the form jump at every new try.
@@ -50,11 +52,13 @@ async function onSubmit() {
     error.value = e instanceof Error ? e.message : 'Inloggen mislukt.'
   } finally {
     submitting.value = false
+    await giveFocusBack()
   }
 }
 
 async function onPasskey() {
   if (passkeyBusy.value) return
+  const giveFocusBack = holdFocus()
   passkeyBusy.value = true
   // As above, the red box stays until the answer: a dismissed prompt clears it.
   try {
@@ -65,6 +69,7 @@ async function onPasskey() {
     error.value = e instanceof Error ? e.message : 'Inloggen met passkey mislukt.'
   } finally {
     passkeyBusy.value = false
+    await giveFocusBack()
   }
 }
 

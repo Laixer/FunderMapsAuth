@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 
 import { RESET_LINK_EXPIRED } from '@/services/api'
 import { resetPassword } from '@/services/auth'
+import { holdFocus } from '@/utils/focus'
 
 const route = useRoute()
 
@@ -35,6 +36,7 @@ async function onSubmit() {
     return
   }
 
+  const giveFocusBack = holdFocus()
   submitting.value = true
   // The red box stays while the button says "Bezig…": removing it would make
   // the form jump at every new try.
@@ -45,6 +47,7 @@ async function onSubmit() {
     error.value = e instanceof Error ? e.message : 'Resetten mislukt.'
   } finally {
     submitting.value = false
+    await giveFocusBack()
   }
 }
 </script>
