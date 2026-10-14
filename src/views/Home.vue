@@ -88,9 +88,11 @@ async function onAddPasskey() {
     await refreshPasskeys()
   } catch (e) {
     if (toLoginIfExpired(e)) return
-    const msg = e instanceof Error ? e.message : ''
+    const what = e instanceof Error ? `${e.name} ${e.message}` : ''
     // Dismissing the browser prompt is not an error: it clears an old one.
-    passkeyError.value = /abort|cancel|NotAllowed/i.test(msg) ? null : 'Passkey toevoegen mislukt.'
+    // Chrome reports a dismissal or a time-out in words ("…timed out or was
+    // not allowed"), without the name NotAllowedError.
+    passkeyError.value = /abort|cancel|not ?allowed/i.test(what) ? null : 'Passkey toevoegen mislukt.'
   } finally {
     busy.value = false
   }
