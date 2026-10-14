@@ -18,18 +18,20 @@ const error = ref<string | null>(route.query.expired === '1' ? 'Je sessie is ver
  * Where to go once the cookie is set.
  *  - `redirect`: the app that sent the user here; FunderMaps origins only.
  *  - otherwise the account page.
- * Settles when this page is left, or when the account page turned the visitor
- * back here: until then the button that was pressed stays busy.
+ * Settles when this page is left (at most 10 s for an app), or when the
+ * account page turned the visitor back here: until then the button that was
+ * pressed stays busy.
  */
 async function continueAfterLogin() {
   const params = new URLSearchParams(window.location.search)
   const target = safeRedirect(params.get('redirect'))
   if (target) {
     // pagehide, not unload: the browser may keep this page for its Back
-    // button, and the form must be idle when it comes back.
+    // button, and the form must be idle when it comes back. The time limit:
+    // a load stopped with Esc fires no pagehide, and must not leave it busy.
     const leaving = new Promise((resolve) => window.addEventListener('pagehide', resolve, { once: true }))
     window.location.assign(target)
-    await leaving
+    await Promise.race([leaving, new Promise((resolve) => setTimeout(resolve, 10_000))])
     return
   }
   await router.push({ name: 'home' })
@@ -54,9 +56,11 @@ async function onSubmit() {
 async function onPasskey() {
   if (passkeyBusy.value) return
   passkeyBusy.value = true
-  error.value = null
+  // As above, the red box stays until the answer: a dismissed prompt clears it.
   try {
-    if (await loginWithPasskey()) await continueAfterLogin()
+    const signedIn = await loginWithPasskey()
+    error.value = null
+    if (signedIn) await continueAfterLogin()
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Inloggen met passkey mislukt.'
   } finally {

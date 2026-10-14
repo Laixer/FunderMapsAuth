@@ -154,7 +154,7 @@ async function onSignOut() {
           <button
             type="button"
             :disabled="busy"
-            class="rounded text-sm font-semibold text-green-700 underline-offset-2 enabled:hover:underline focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none disabled:opacity-50"
+            class="rounded text-sm font-semibold text-green-700 underline-offset-2 enabled:hover:underline focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             @click="onAddPasskey"
           >
             + Passkey toevoegen
@@ -167,7 +167,9 @@ async function onSignOut() {
           {{ passkeyError }}
         </p>
         <ul v-if="passkeys.length" class="divide-y divide-grey-200 rounded-lg border border-grey-200">
-          <li v-for="pk in passkeys" :key="pk.id" class="flex items-center justify-between gap-4 px-4 py-3 text-sm">
+          <!-- Below sm the button lines up with the name: the lines under it may be
+               wider than their column and pass beneath it. -->
+          <li v-for="pk in passkeys" :key="pk.id" class="flex items-start justify-between gap-4 px-4 py-3 text-sm sm:items-center">
             <span class="min-w-0">
               <span class="block font-medium text-grey-800">{{ pk.name || 'Passkey' }}</span>
               <span class="block text-grey-700">
@@ -179,7 +181,7 @@ async function onSignOut() {
             <button
               type="button"
               :disabled="busy"
-              class="rounded text-sm text-grey-700 underline-offset-2 enabled:hover:text-red-500 enabled:hover:underline focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none disabled:opacity-50"
+              class="rounded text-sm text-grey-700 underline-offset-2 enabled:hover:text-red-500 enabled:hover:underline focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               @click="onDeletePasskey(pk)"
             >
               Verwijderen

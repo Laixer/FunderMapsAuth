@@ -82,6 +82,14 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Tailwind 4 gives buttons the arrow; one that can be pressed gets the hand,
+   as links have. In the base layer, so a utility on a button still wins. */
+@layer base {
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 /* Greycliff's own bullet is a quarter em wide: a typed password would be a
    hairline of specks that cannot be counted. */
 input[type="password"] {
