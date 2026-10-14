@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
+import { RESET_LINK_EXPIRED } from '@/services/api'
 import { resetPassword } from '@/services/auth'
 
 const route = useRoute()
@@ -18,16 +19,25 @@ const submitting = ref(false)
 const done = ref(false)
 const error = ref<string | null>(null)
 
+const MISMATCH = 'Wachtwoorden komen niet overeen.'
+
+// Typing again ends the mismatch, so it never stands beside the browser's own
+// message (a password that is too short).
+watch([password, confirm], () => {
+  if (error.value === MISMATCH) error.value = null
+})
+
 async function onSubmit() {
   if (submitting.value) return
-  error.value = null
 
   if (password.value !== confirm.value) {
-    error.value = 'Wachtwoorden komen niet overeen.'
+    error.value = MISMATCH
     return
   }
 
   submitting.value = true
+  // The red box stays while the button says "Bezig…": removing it would make
+  // the form jump at every new try.
   try {
     await resetPassword(token.value, password.value)
     done.value = true
@@ -43,7 +53,7 @@ async function onSubmit() {
   <div class="w-[calc(100vw-3rem)] sm:w-[30rem] space-y-6 rounded-xl bg-white p-8 shadow-card">
     <header class="space-y-1">
       <h1 class="text-2xl font-extrabold text-blue-900">Nieuw wachtwoord</h1>
-      <p v-if="token" class="text-sm text-grey-700">Kies een nieuw wachtwoord voor je account.</p>
+      <p v-if="token && !done" class="text-sm text-grey-700">Kies een nieuw wachtwoord voor je account.</p>
     </header>
 
     <p
@@ -68,7 +78,11 @@ async function onSubmit() {
         class="rounded-lg border-l-4 border-red-500 bg-yellow-100 px-4 py-3 text-sm text-red-500"
         role="alert"
       >
-        {{ error }}
+        <template v-if="error === RESET_LINK_EXPIRED">
+          Deze resetlink is ongeldig of verlopen.
+          <RouterLink :to="{ name: 'forgot-password', query: { redirect: route.query.redirect } }" class="rounded font-semibold underline underline-offset-2 focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none">Vraag een nieuwe aan</RouterLink>.
+        </template>
+        <template v-else>{{ error }}</template>
       </p>
 
       <div class="space-y-4">
@@ -102,7 +116,7 @@ async function onSubmit() {
       <button
         type="submit"
         :disabled="submitting"
-        class="flex w-full items-center justify-center rounded-lg bg-green-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:ring-2 focus:ring-green-500/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        class="flex w-full items-center justify-center rounded-lg bg-green-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors enabled:hover:bg-green-700 focus:ring-2 focus:ring-green-500/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
         {{ submitting ? 'Bezig…' : 'Wachtwoord opslaan' }}
       </button>

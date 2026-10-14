@@ -18,6 +18,8 @@ interface CallOptions {
   body?: Record<string, unknown>
 }
 
+export const RESET_LINK_EXPIRED = 'Deze resetlink is ongeldig of verlopen. Vraag een nieuwe aan.'
+
 /**
  * Better Auth answers in English; the pages around it are Dutch. These are the
  * answers a visitor can run into on the login and reset forms, by error code.
@@ -25,7 +27,8 @@ interface CallOptions {
 const MESSAGES = new Map<string, string>([
   ['INVALID_EMAIL_OR_PASSWORD', 'Onjuist e-mailadres of wachtwoord.'],
   ['INVALID_EMAIL', 'Vul een geldig e-mailadres in.'],
-  ['INVALID_TOKEN', 'Deze resetlink is ongeldig of verlopen. Vraag een nieuwe aan.'],
+  // The reset form writes its last sentence as a link to ask for a new one.
+  ['INVALID_TOKEN', RESET_LINK_EXPIRED],
   ['PASSWORD_TOO_SHORT', 'Het wachtwoord is te kort. Gebruik minimaal 8 tekens.'],
   ['PASSWORD_TOO_LONG', 'Het wachtwoord is te lang.'],
 ])

@@ -11,7 +11,8 @@ const error = ref<string | null>(null)
 async function onSubmit() {
   if (submitting.value) return
   submitting.value = true
-  error.value = null
+  // The red box stays while the button says "Bezig…" (no jump at a new try);
+  // once it is sent the form, box and all, makes way for the confirmation.
   try {
     await requestPasswordReset(email.value)
     sent.value = true
@@ -62,7 +63,7 @@ async function onSubmit() {
       <button
         type="submit"
         :disabled="submitting"
-        class="flex w-full items-center justify-center rounded-lg bg-green-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:ring-2 focus:ring-green-500/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        class="flex w-full items-center justify-center rounded-lg bg-green-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors enabled:hover:bg-green-700 focus:ring-2 focus:ring-green-500/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
         {{ submitting ? 'Bezig…' : 'Verstuur resetlink' }}
       </button>

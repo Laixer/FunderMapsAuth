@@ -95,7 +95,7 @@ async function onAddPasskey() {
 
 async function onDeletePasskey(pk: Passkey) {
   if (busy.value) return
-  if (!window.confirm(`Passkey "${pk.name || 'zonder naam'}" verwijderen?`)) return
+  if (!window.confirm(pk.name ? `Passkey "${pk.name}" verwijderen?` : 'Deze passkey verwijderen?')) return
   busy.value = true
   passkeyError.value = null
   try {
@@ -154,7 +154,7 @@ async function onSignOut() {
           <button
             type="button"
             :disabled="busy"
-            class="rounded text-sm font-semibold text-green-700 underline-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none disabled:opacity-50"
+            class="rounded text-sm font-semibold text-green-700 underline-offset-2 enabled:hover:underline focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none disabled:opacity-50"
             @click="onAddPasskey"
           >
             + Passkey toevoegen
@@ -167,18 +167,19 @@ async function onSignOut() {
           {{ passkeyError }}
         </p>
         <ul v-if="passkeys.length" class="divide-y divide-grey-200 rounded-lg border border-grey-200">
-          <li v-for="pk in passkeys" :key="pk.id" class="flex items-center justify-between px-4 py-3 text-sm">
-            <span>
+          <li v-for="pk in passkeys" :key="pk.id" class="flex items-center justify-between gap-4 px-4 py-3 text-sm">
+            <span class="min-w-0">
               <span class="block font-medium text-grey-800">{{ pk.name || 'Passkey' }}</span>
               <span class="block text-grey-700">
                 {{ pk.deviceType === 'multiDevice' ? 'Gesynchroniseerd' : 'Alleen dit apparaat' }}
-                <template v-if="pk.createdAt"> · toegevoegd {{ formatDate(pk.createdAt) }}</template>
+                <!-- On a phone the date gets its own line: no dot left hanging. -->
+                <template v-if="pk.createdAt"><span class="hidden sm:inline"> · </span><span class="block whitespace-nowrap sm:inline">toegevoegd {{ formatDate(pk.createdAt) }}</span></template>
               </span>
             </span>
             <button
               type="button"
               :disabled="busy"
-              class="rounded text-sm text-grey-700 underline-offset-2 hover:text-red-500 hover:underline focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none disabled:opacity-50"
+              class="rounded text-sm text-grey-700 underline-offset-2 enabled:hover:text-red-500 enabled:hover:underline focus-visible:ring-2 focus-visible:ring-green-500/40 focus-visible:outline-none disabled:opacity-50"
               @click="onDeletePasskey(pk)"
             >
               Verwijderen

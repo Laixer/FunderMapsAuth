@@ -18,24 +18,32 @@ const error = ref<string | null>(route.query.expired === '1' ? 'Je sessie is ver
  * Where to go once the cookie is set.
  *  - `redirect`: the app that sent the user here; FunderMaps origins only.
  *  - otherwise the account page.
+ * Settles when this page is left, or when the account page turned the visitor
+ * back here: until then the button that was pressed stays busy.
  */
-function continueAfterLogin() {
+async function continueAfterLogin() {
   const params = new URLSearchParams(window.location.search)
   const target = safeRedirect(params.get('redirect'))
   if (target) {
+    // pagehide, not unload: the browser may keep this page for its Back
+    // button, and the form must be idle when it comes back.
+    const leaving = new Promise((resolve) => window.addEventListener('pagehide', resolve, { once: true }))
     window.location.assign(target)
+    await leaving
     return
   }
-  router.push({ name: 'home' })
+  await router.push({ name: 'home' })
 }
 
 async function onSubmit() {
   if (submitting.value) return
   submitting.value = true
-  error.value = null
+  // The red box stays while the button says "Bezig…": removing it would make
+  // the form jump at every new try.
   try {
     await login(email.value, password.value)
-    continueAfterLogin()
+    error.value = null
+    await continueAfterLogin()
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Inloggen mislukt.'
   } finally {
@@ -48,7 +56,7 @@ async function onPasskey() {
   passkeyBusy.value = true
   error.value = null
   try {
-    if (await loginWithPasskey()) continueAfterLogin()
+    if (await loginWithPasskey()) await continueAfterLogin()
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Inloggen met passkey mislukt.'
   } finally {
@@ -117,7 +125,7 @@ onMounted(async () => {
     <button
       type="submit"
       :disabled="submitting"
-      class="flex w-full items-center justify-center rounded-lg bg-green-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:ring-2 focus:ring-green-500/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+      class="flex w-full items-center justify-center rounded-lg bg-green-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors enabled:hover:bg-green-700 focus:ring-2 focus:ring-green-500/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
     >
       {{ submitting ? 'Bezig…' : 'Inloggen' }}
     </button>
@@ -126,7 +134,7 @@ onMounted(async () => {
       v-if="passkeysSupported"
       type="button"
       :disabled="passkeyBusy"
-      class="flex w-full items-center justify-center gap-2 rounded-lg border border-grey-400 px-4 py-2.5 text-sm font-semibold text-grey-800 transition-colors hover:border-green-500 hover:text-green-700 focus:ring-2 focus:ring-green-500/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+      class="flex w-full items-center justify-center gap-2 rounded-lg border border-grey-400 px-4 py-2.5 text-sm font-semibold text-grey-800 transition-colors enabled:hover:border-green-500 enabled:hover:text-green-700 focus:ring-2 focus:ring-green-500/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       @click="onPasskey"
     >
       <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
