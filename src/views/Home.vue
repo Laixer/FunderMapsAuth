@@ -64,8 +64,9 @@ onMounted(async () => {
   }
   user.value = session.user
   // "Laden…" until the list is in too: the centred card grew when it arrived,
-  // and everything on it jumped.
-  if (passkeysSupported) await refreshPasskeys()
+  // and everything on it jumped. At most 3 s: a list that hangs must not keep
+  // the page, and "Uitloggen", away; it fills in when it comes.
+  if (passkeysSupported) await Promise.race([refreshPasskeys(), new Promise((r) => setTimeout(r, 3000))])
   loading.value = false
 })
 
