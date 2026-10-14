@@ -22,6 +22,7 @@ const passkeys = ref<Passkey[]>([])
 const passkeysLoaded = ref(false)
 const passkeyError = ref<string | null>(null)
 const signOutFailed = ref(false)
+const signingOut = ref(false)
 const busy = ref(false)
 const passkeysSupported = typeof window !== 'undefined' && typeof window.PublicKeyCredential !== 'undefined'
 
@@ -79,15 +80,17 @@ async function onAddPasskey() {
   const name = window.prompt('Naam voor deze passkey', defaultPasskeyName())
   if (name === null) return
   busy.value = true
-  passkeyError.value = null
+  // The red box stays until the answer, here, on delete and on sign-out:
+  // removing it at the press would make the card jump at every new try.
   try {
     await addPasskey(name.trim() || defaultPasskeyName())
+    passkeyError.value = null
     await refreshPasskeys()
   } catch (e) {
     if (toLoginIfExpired(e)) return
     const msg = e instanceof Error ? e.message : ''
-    // Dismissing the browser prompt is not an error.
-    if (!/abort|cancel|NotAllowed/i.test(msg)) passkeyError.value = 'Passkey toevoegen mislukt.'
+    // Dismissing the browser prompt is not an error: it clears an old one.
+    passkeyError.value = /abort|cancel|NotAllowed/i.test(msg) ? null : 'Passkey toevoegen mislukt.'
   } finally {
     busy.value = false
   }
@@ -97,9 +100,9 @@ async function onDeletePasskey(pk: Passkey) {
   if (busy.value) return
   if (!window.confirm(pk.name ? `Passkey "${pk.name}" verwijderen?` : 'Deze passkey verwijderen?')) return
   busy.value = true
-  passkeyError.value = null
   try {
     await deletePasskey(pk.id)
+    passkeyError.value = null
     await refreshPasskeys()
   } catch (e) {
     if (!toLoginIfExpired(e)) passkeyError.value = 'Passkey verwijderen mislukt.'
@@ -114,13 +117,13 @@ function formatDate(d: Passkey['createdAt']): string {
 }
 
 async function onSignOut() {
-  signOutFailed.value = false
-  if (!(await signOut())) {
-    // Still logged in: the login form would say otherwise.
-    signOutFailed.value = true
-    return
-  }
-  router.push({ name: 'login' })
+  if (signingOut.value) return
+  signingOut.value = true
+  const ok = await signOut()
+  signOutFailed.value = !ok
+  // Still logged in after a failure: the login form would say otherwise.
+  if (ok) await router.push({ name: 'login' })
+  signingOut.value = false
 }
 </script>
 
@@ -197,10 +200,11 @@ async function onSignOut() {
 
       <button
         type="button"
-        class="flex w-full items-center justify-center rounded-lg border border-grey-400 px-4 py-2.5 text-sm font-semibold text-grey-800 transition-colors hover:border-red-500 hover:bg-red-50 hover:text-red-500 focus:ring-2 focus:ring-green-500/40 focus:outline-none"
+        :disabled="signingOut"
+        class="flex w-full items-center justify-center rounded-lg border border-grey-400 px-4 py-2.5 text-sm font-semibold text-grey-800 transition-colors enabled:hover:border-red-500 enabled:hover:bg-red-50 enabled:hover:text-red-500 focus:ring-2 focus:ring-green-500/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         @click="onSignOut"
       >
-        Uitloggen
+        {{ signingOut ? 'Bezig…' : 'Uitloggen' }}
       </button>
     </template>
   </div>
