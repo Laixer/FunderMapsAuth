@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 
 import { requestPasswordReset } from '@/services/auth'
+import { holdFocus } from '@/utils/focus'
 
 const email = ref('')
 const submitting = ref(false)
@@ -10,6 +11,7 @@ const error = ref<string | null>(null)
 
 async function onSubmit() {
   if (submitting.value) return
+  const giveFocusBack = holdFocus()
   submitting.value = true
   // The red box stays while the button says "Bezig…" (no jump at a new try);
   // once it is sent the form, box and all, makes way for the confirmation.
@@ -20,6 +22,7 @@ async function onSubmit() {
     error.value = e instanceof Error ? e.message : 'Versturen mislukt.'
   } finally {
     submitting.value = false
+    await giveFocusBack()
   }
 }
 </script>

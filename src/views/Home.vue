@@ -12,6 +12,7 @@ import {
   type Passkey,
   type SessionUser,
 } from '@/services/auth'
+import { holdFocus } from '@/utils/focus'
 
 const router = useRouter()
 
@@ -62,8 +63,10 @@ onMounted(async () => {
     return
   }
   user.value = session.user
-  loading.value = false
+  // "Laden…" until the list is in too: the centred card grew when it arrived,
+  // and everything on it jumped.
   if (passkeysSupported) await refreshPasskeys()
+  loading.value = false
 })
 
 function defaultPasskeyName(): string {
@@ -77,6 +80,8 @@ function defaultPasskeyName(): string {
 
 async function onAddPasskey() {
   if (busy.value) return
+  // Before the prompt, which has the focus while it is open.
+  const giveFocusBack = holdFocus()
   const name = window.prompt('Naam voor deze passkey', defaultPasskeyName())
   if (name === null) return
   busy.value = true
@@ -95,11 +100,13 @@ async function onAddPasskey() {
     passkeyError.value = /abort|cancel|not ?allowed/i.test(what) ? null : 'Passkey toevoegen mislukt.'
   } finally {
     busy.value = false
+    await giveFocusBack()
   }
 }
 
 async function onDeletePasskey(pk: Passkey) {
   if (busy.value) return
+  const giveFocusBack = holdFocus()
   if (!window.confirm(pk.name ? `Passkey "${pk.name}" verwijderen?` : 'Deze passkey verwijderen?')) return
   busy.value = true
   try {
@@ -110,6 +117,7 @@ async function onDeletePasskey(pk: Passkey) {
     if (!toLoginIfExpired(e)) passkeyError.value = 'Passkey verwijderen mislukt.'
   } finally {
     busy.value = false
+    await giveFocusBack()
   }
 }
 
@@ -120,12 +128,14 @@ function formatDate(d: Passkey['createdAt']): string {
 
 async function onSignOut() {
   if (signingOut.value) return
+  const giveFocusBack = holdFocus()
   signingOut.value = true
   const ok = await signOut()
   signOutFailed.value = !ok
   // Still logged in after a failure: the login form would say otherwise.
   if (ok) await router.push({ name: 'login' })
   signingOut.value = false
+  await giveFocusBack()
 }
 </script>
 
