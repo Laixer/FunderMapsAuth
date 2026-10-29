@@ -1,5 +1,11 @@
 # FunderMapsAuth
 
+> **Retired on 2026-10-29.** The login moved into the map app (FunderMapsWebFront #340: `/login`,
+> `/forgot-password`, `/reset-password`, `/account`, same paths as here); the Studio has its own login
+> (FunderMapsStudio). `auth.fundermaps.com` redirects to `maps.fundermaps.com`, path kept, and the app
+> `fundermaps-auth-prod` is deleted. Passkeys belong to `fundermaps.com`, so the ones made here keep working on the
+> map. This repo is archived and kept for reference.
+
 The dedicated authentication app for FunderMaps — `auth.fundermaps.com`.
 
 A small Vue 3 + Vite + TypeScript SPA that owns the generic auth surface for
